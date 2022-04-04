@@ -1,0 +1,9 @@
+{
+  "restartable": "rs",
+  "ignore": ["./ui/", "./index.html"],
+  "execMap": {
+    "ts": "node --loader ts-node/esm"
+  },
+  "ext": "ts,js,json",
+  "trace": true
+}
