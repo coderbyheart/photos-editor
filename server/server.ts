@@ -13,13 +13,33 @@ const requestListener =
 			chalk.blue(req.method),
 			chalk.yellow(req.url),
 		)
+		res.setHeader('Access-Control-Expose-Headers', 'Link')
 		res.setHeader('Access-Control-Allow-Origin', '*')
 
-		const sendJSON = (data: Record<string, any>) => {
-			console.log(JSON.stringify(data, null, 2))
-			res.setHeader('Content-Type', 'application/json; charset=utf-8')
+		const sendJSON = (
+			data: Record<string, any>,
+			headers?: Record<string, any>,
+		) => {
+			const encodedJSON = JSON.stringify(data)
+			const effectiveHeaders = {
+				'Content-Type': 'application/json; charset=utf-8',
+				'Content-Length': encodedJSON.length,
+				...(headers ?? {}),
+			}
+			for (const [header, value] of Object.entries(effectiveHeaders)) {
+				res.setHeader(header, value)
+				console.debug(
+					chalk.magenta('>'),
+					chalk.gray(header),
+					chalk.yellow(value),
+				)
+			}
 			res.writeHead(200)
-			res.end(JSON.stringify(data))
+			console.debug(
+				chalk.magenta('>'),
+				chalk.yellow(JSON.stringify(data, null, 2)),
+			)
+			res.end(encodedJSON)
 		}
 
 		const send404 = () => {
@@ -28,7 +48,9 @@ const requestListener =
 		}
 
 		if (req.method === 'OPTIONS') {
+			res.setHeader('Access-Control-Allow-Origin', '*')
 			res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE')
+			res.setHeader('Access-Control-Allow-Headers', 'Link')
 			res.writeHead(200)
 			return res.end()
 		} else if (/^GET \/photos\?term=/.test(resource)) {
@@ -62,7 +84,15 @@ const requestListener =
 			return res.writeHead(202).end()
 		} else if (/^GET \/photo\/.+/.test(resource)) {
 			const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
-			if (photo !== undefined) return sendJSON(photo)
+			if (photo !== undefined) {
+				const next = gallery.photos[gallery.photos.indexOf(photo) + 1]
+				const prev = gallery.photos[gallery.photos.indexOf(photo) - 1]
+				const links = []
+				if (next !== undefined) links.push(`<${next.name}>;rel="next"`)
+				if (prev !== undefined) links.push(`<${prev.name}>;rel="prev"`)
+				return sendJSON(photo, { Link: links.join(',') })
+			}
+
 			return send404()
 		} else {
 			return send404()
