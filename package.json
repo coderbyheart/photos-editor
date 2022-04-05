@@ -23,7 +23,7 @@
     "ui": "vite"
   },
   "devDependencies": {
-    "@nordicsemiconductor/asset-tracker-cloud-code-style": "11.0.49",
+    "@nordicsemiconductor/asset-tracker-cloud-code-style": "11.0.50",
     "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "10.0.13",
     "@nordicsemiconductor/from-env": "1.0.0",
     "@preact/preset-vite": "2.2.0",
