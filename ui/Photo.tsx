@@ -29,7 +29,7 @@ const LastGeoButton = ({
 
 	return (
 		<button
-			class="btn btn-sm btn-outline-secondary ms-2"
+			class="btn btn-outline-secondary ms-2"
 			type="button"
 			onClick={() => onClick(JSON.parse(lastGeo))}
 		>
@@ -45,7 +45,7 @@ const LastTitleButton = ({ onClick }: { onClick: (title: string) => void }) => {
 
 	return (
 		<button
-			class="btn btn-sm btn-outline-secondary ms-2"
+			class="btn btn-outline-secondary"
 			type="button"
 			onClick={() => onClick(lastTitle)}
 		>
@@ -62,7 +62,7 @@ const LastTagsButton = ({ onClick }: { onClick: (tags: string[]) => void }) => {
 	const tags = JSON.parse(lastTags)
 	return (
 		<button
-			class="btn btn-sm btn-outline-secondary ms-2"
+			class="btn btn-outline-secondary"
 			type="button"
 			onClick={() => onClick(tags)}
 		>
@@ -122,7 +122,7 @@ export const Photo = ({
 	}
 
 	const addTag = () => {
-		const tags = [...(photo.frontMatter.tags ?? []), newTag]
+		const tags = [...(photo.frontMatter.tags ?? []), newTag.replace(',', '')]
 		localStorage.setItem('tags', JSON.stringify(tags))
 		setTags(tags)
 		setNewTag('')
@@ -153,7 +153,7 @@ export const Photo = ({
 			<nav class="d-flex justify-content-between mb-2">
 				{prev && (
 					<button
-						class="btn btn-sm btn-outline-secondary"
+						class="btn btn-outline-secondary"
 						type="button"
 						onClick={() => {
 							route(`/photo/${prev}`)
@@ -162,62 +162,82 @@ export const Photo = ({
 						prev
 					</button>
 				)}
-				{next && (
+				<div>
 					<button
-						class="btn btn-sm btn-outline-secondary"
+						class="btn btn-primary"
 						type="button"
 						onClick={() => {
-							route(`/photo/${next}`)
+							fetch(`http://localhost:3000/photo/${photoId}`, {
+								method: 'PUT',
+								body: JSON.stringify(photo.frontMatter),
+							})
 						}}
 					>
-						next
+						save
 					</button>
-				)}
-			</nav>
-			<form>
-				<dl>
-					<dt>ID</dt>
-					<dd>{photoId}</dd>
-					<dt>
-						Geo <LastGeoButton onClick={setGeo} />
-					</dt>
-					{geo !== undefined && (
-						<dd>
-							{geo.lat},{geo.lng}
-						</dd>
+					{next && (
+						<button
+							class="btn btn-outline-primary ms-2"
+							type="button"
+							onClick={() => {
+								fetch(`http://localhost:3000/photo/${photoId}`, {
+									method: 'PUT',
+									body: JSON.stringify(photo.frontMatter),
+								}).then(() => {
+									route(`/photo/${next}`)
+								})
+							}}
+						>
+							save + next
+						</button>
 					)}
-					{geo === undefined && <dd>&mdash;</dd>}
-					<dt>Taken at</dt>
-					<dd>{takenAt}</dd>
-					<fieldset class="mb-3">
+					{next && (
+						<button
+							class="btn btn-outline-secondary ms-2"
+							type="button"
+							onClick={() => {
+								route(`/photo/${next}`)
+							}}
+						>
+							next
+						</button>
+					)}
+				</div>
+			</nav>
+			<div class="d-flex">
+				<form class="flex-grow-1 me-4">
+					<fieldset>
 						<label for="title" class="form-label">
 							Title
 						</label>
-						<LastTitleButton onClick={setTitle} />
-						<input
-							type="text"
-							class="form-control"
-							id="title"
-							placeholder="Awesome Cat!"
-							value={title}
-							onInput={(e: { target: HTMLInputElement }) => {
-								localStorage.setItem('title', e.target.value)
-								setTitle(e.target.value)
-							}}
-						/>
+
+						<div class="input-group mb-3">
+							<input
+								type="text"
+								class="form-control"
+								id="title"
+								placeholder="Awesome Cat!"
+								value={title}
+								onInput={(e: { target: HTMLInputElement }) => {
+									localStorage.setItem('title', e.target.value)
+									setTitle(e.target.value)
+								}}
+							/>
+							<LastTitleButton onClick={setTitle} />
+						</div>
 					</fieldset>
-					<dt>
-						Tags
-						<LastTagsButton onClick={setTags} />
-					</dt>
-					<dd>
+					<fieldset class="mt-2">
+						<label for="tags" class="d-flex justify-content-between">
+							Tags
+							<LastTagsButton onClick={setTags} />
+						</label>
 						{(tags?.length ?? []) > 0 && (
 							<ul>
 								{tags.map((tag) => (
 									<li>
 										{tag}
 										<button
-											class="btn btn-sm btn-outline-danger ms-2"
+											class="btn btn-outline-danger ms-2"
 											type="button"
 											id="add-tag"
 											onClick={() => {
@@ -251,6 +271,7 @@ export const Photo = ({
 								value={newTag}
 								onKeyUp={(e: KeyboardEvent) => {
 									if (e.key === 'Enter') addTag()
+									if (e.key === ',') addTag()
 								}}
 							/>
 							<button
@@ -263,56 +284,33 @@ export const Photo = ({
 								add tag
 							</button>
 						</div>
-					</dd>
-				</dl>
-				<footer class="mb-4 d-flex justify-content-end">
-					<button
-						class="btn btn-primary"
-						type="button"
-						onClick={() => {
-							fetch(`http://localhost:3000/photo/${photoId}`, {
-								method: 'PUT',
-								body: JSON.stringify(photo.frontMatter),
-							})
-						}}
-					>
-						save
-					</button>
-					{next && (
-						<button
-							class="btn btn-outline-primary ms-2"
-							type="button"
-							onClick={() => {
-								fetch(`http://localhost:3000/photo/${photoId}`, {
-									method: 'PUT',
-									body: JSON.stringify(photo.frontMatter),
-								}).then(() => {
-									route(`/photo/${next}`)
-								})
-							}}
-						>
-							save + next
-						</button>
+					</fieldset>
+
+					<label class="d-flex justify-content-between">
+						Geo <LastGeoButton onClick={setGeo} />
+					</label>
+					{geo !== undefined && (
+						<p>
+							{geo.lat},{geo.lng}
+							<button
+								class="btn btn-outline-danger ms-2"
+								type="button"
+								id="add-tag"
+								onClick={() => {
+									setPhoto({
+										...photo,
+										frontMatter: {
+											...photo.frontMatter,
+											geo: undefined,
+										},
+									})
+								}}
+							>
+								delete
+							</button>
+						</p>
 					)}
-				</footer>
-				<div class="d-flex">
-					{photo?.frontMatter?.url !== undefined && (
-						<img
-							src={`${photo.frontMatter.url}?w=500&fm=webp`}
-							style={{ width: '500px' }}
-						/>
-					)}
-					{photo?.frontMatter?.video !== undefined && (
-						<iframe
-							width="100%"
-							height="400"
-							src={`https://www.youtube-nocookie.com/embed/${photo.frontMatter.video.youtube}?controls=0&autoplay=1`}
-							title="YouTube video player"
-							frameborder="0"
-							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-							allowfullscreen
-						></iframe>
-					)}
+					{geo === undefined && <p>&mdash;</p>}
 					<PhotoMap
 						geo={geo}
 						onGeo={(geo) => {
@@ -320,8 +318,72 @@ export const Photo = ({
 							setGeo(geo)
 						}}
 					/>
-				</div>
-			</form>
+					<footer class="d-flex justify-content-end mt-2">
+						<button
+							class="btn btn-primary"
+							type="button"
+							onClick={() => {
+								fetch(`http://localhost:3000/photo/${photoId}`, {
+									method: 'PUT',
+									body: JSON.stringify(photo.frontMatter),
+								})
+							}}
+						>
+							save
+						</button>
+						{next && (
+							<button
+								class="btn btn-outline-primary ms-2"
+								type="button"
+								onClick={() => {
+									fetch(`http://localhost:3000/photo/${photoId}`, {
+										method: 'PUT',
+										body: JSON.stringify(photo.frontMatter),
+									}).then(() => {
+										route(`/photo/${next}`)
+									})
+								}}
+							>
+								save + next
+							</button>
+						)}
+					</footer>
+				</form>
+				<article>
+					<h2>{title}</h2>
+					{(tags?.length ?? []) > 0 && (
+						<p>{tags.map((t) => `#${t}`).join(' ')}</p>
+					)}
+					<div class="d-flex">
+						<div key={photoId}>
+							{photo?.frontMatter?.url !== undefined && (
+								<img
+									key={photo.frontMatter.url}
+									src={`${photo.frontMatter.url}?w=500&fm=webp`}
+									style={{ width: '500px' }}
+								/>
+							)}
+							{photo?.frontMatter?.video !== undefined && (
+								<iframe
+									width="100%"
+									height="400"
+									src={`https://www.youtube-nocookie.com/embed/${photo.frontMatter.video.youtube}?controls=0&autoplay=1`}
+									title="YouTube video player"
+									frameborder="0"
+									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+									allowfullscreen
+								></iframe>
+							)}
+							<dl class="mt-2">
+								<dt>ID</dt>
+								<dd>{photoId}</dd>
+								<dt>Taken at</dt>
+								<dd>{takenAt}</dd>
+							</dl>
+						</div>
+					</div>
+				</article>
+			</div>
 		</>
 	)
 }

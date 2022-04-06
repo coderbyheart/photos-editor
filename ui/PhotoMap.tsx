@@ -11,7 +11,6 @@ export const PhotoMap = ({
 	const [zoom, setZoom] = useState<number>(12)
 
 	useEffect(() => {
-		console.log(`New map`)
 		const map = L.map('map').setView(
 			[geo?.lat ?? 63.4305094966943, geo?.lng ?? 10.39505368728824],
 			zoom,

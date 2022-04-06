@@ -23,7 +23,6 @@ const requestListener =
 			const encodedJSON = JSON.stringify(data)
 			const effectiveHeaders = {
 				'Content-Type': 'application/json; charset=utf-8',
-				'Content-Length': encodedJSON.length,
 				...(headers ?? {}),
 			}
 			for (const [header, value] of Object.entries(effectiveHeaders)) {
