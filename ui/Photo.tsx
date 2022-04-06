@@ -1,5 +1,6 @@
 import { route } from 'preact-router'
 import { useEffect, useState } from 'preact/hooks'
+import { AlbumCart } from './AlbumCart'
 import { PhotoMap } from './PhotoMap'
 
 type LoadedPhoto = {
@@ -380,6 +381,7 @@ export const Photo = ({
 								<dt>Taken at</dt>
 								<dd>{takenAt}</dd>
 							</dl>
+							<AlbumCart photoId={photoId} />
 						</div>
 					</div>
 				</article>
