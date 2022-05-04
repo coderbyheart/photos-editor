@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { readdir, readFile, writeFile } from 'fs/promises'
+import { readdir, readFile, unlink, writeFile } from 'fs/promises'
 import yaml from 'js-yaml'
 import path from 'path'
 
@@ -7,6 +7,7 @@ export type Gallery = {
 	photos: ParsedFiles
 	albums: ParsedFiles
 	updatePhoto: (name: string, frontMatter: Record<string, any>) => Promise<void>
+	deletePhoto: (name: string) => Promise<void>
 }
 
 type ParsedFiles = {
@@ -88,6 +89,15 @@ export const data = async (photosDir: string): Promise<Gallery> => {
 			if (photo !== undefined) {
 				photo.frontMatter = frontMatter
 			}
+		},
+		deletePhoto: async (name) => {
+			const fileName = path.join(pDir, name)
+
+			console.debug(chalk.gray('Deleting'), chalk.yellow(fileName))
+			await unlink(fileName)
+
+			const photo = photoData.find(({ name: n }) => name === n)
+			if (photo) delete photoData[photoData.indexOf(photo)]
 		},
 	}
 }

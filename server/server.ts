@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { unlink } from 'fs/promises'
 import http, { IncomingMessage, ServerResponse } from 'http'
 import { URL } from 'url'
 import { photosByDate } from './photosByDate.js'
@@ -81,6 +82,13 @@ const requestListener =
 			await gallery.updatePhoto(photo.name, frontMatter)
 
 			return res.writeHead(202).end()
+		} else if (/^DELETE \/photo\/.+/.test(resource)) {
+				const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
+				if (photo === undefined) return send404()
+	
+				await gallery.deletePhoto(photo.name)
+
+				return res.writeHead(202).end()
 		} else if (/^GET \/photo\/.+/.test(resource)) {
 			const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
 			if (photo !== undefined) {

@@ -1,6 +1,7 @@
 import { route } from 'preact-router'
 import { useEffect, useState } from 'preact/hooks'
 import { AlbumCart } from './AlbumCart'
+import { DeleteButton } from './DeleteButton'
 import { PhotoMap } from './PhotoMap'
 
 type LoadedPhoto = {
@@ -184,8 +185,8 @@ export const Photo = ({
 								fetch(`http://localhost:3000/photo/${photoId}`, {
 									method: 'PUT',
 									body: JSON.stringify(photo.frontMatter),
-								}).then(() => {
-									route(`/photo/${next}`)
+								}).then((res) => {
+									if (res.ok) route(`/photo/${next}`)
 								})
 							}}
 						>
@@ -340,8 +341,8 @@ export const Photo = ({
 									fetch(`http://localhost:3000/photo/${photoId}`, {
 										method: 'PUT',
 										body: JSON.stringify(photo.frontMatter),
-									}).then(() => {
-										route(`/photo/${next}`)
+									}).then((res) => {
+										if (res.ok) route(`/photo/${next}`)
 									})
 								}}
 							>
@@ -381,6 +382,15 @@ export const Photo = ({
 								<dt>Taken at</dt>
 								<dd>{takenAt}</dd>
 							</dl>
+							<DeleteButton
+								onDelete={() => {
+									fetch(`http://localhost:3000/photo/${photoId}`, {
+										method: 'DELETE',
+									}).then((res) => {
+										if (res.ok) route(`/photo/${next}`)
+									})
+								}}
+							/>
 							<AlbumCart photoId={photoId} />
 						</div>
 					</div>
