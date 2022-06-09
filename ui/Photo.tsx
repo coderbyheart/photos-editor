@@ -85,6 +85,7 @@ export const Photo = ({
 	const [next, setNext] = useState<string>()
 	const [prev, setPrev] = useState<string>()
 	const [newTag, setNewTag] = useState<string>('')
+	const [geoInput, setGeoInput] = useState<string>('')
 
 	useEffect(() => {
 		fetch(`http://localhost:3000/photo/${photoId}`, { mode: 'cors' })
@@ -106,7 +107,12 @@ export const Photo = ({
 				setPrev(links.prev)
 				return res.json()
 			})
-			.then((photo) => setPhoto(photo))
+			.then((photo) => {
+				setPhoto(photo)
+				if (photo.geo !== undefined) {
+					setGeoInput(`${photo.geo.lat},${photo.geo.lng}`)
+				}
+			})
 	}, [photoId])
 
 	if (photo?.frontMatter === undefined) return null
@@ -138,6 +144,7 @@ export const Photo = ({
 				geo,
 			},
 		})
+		setGeoInput(`${geo.lat},${geo.lng}`)
 	}
 
 	const setTitle = (title: string) => {
@@ -291,28 +298,53 @@ export const Photo = ({
 					<label class="d-flex justify-content-between">
 						Geo <LastGeoButton onClick={setGeo} />
 					</label>
-					{geo !== undefined && (
-						<p>
-							{geo.lat},{geo.lng}
-							<button
-								class="btn btn-outline-danger ms-2"
-								type="button"
-								id="add-tag"
-								onClick={() => {
-									setPhoto({
-										...photo,
-										frontMatter: {
-											...photo.frontMatter,
-											geo: undefined,
-										},
-									})
-								}}
-							>
-								delete
-							</button>
-						</p>
-					)}
-					{geo === undefined && <p>&mdash;</p>}
+					<div class="input-group mb-3">
+						<button
+							class="btn btn-outline-danger"
+							type="button"
+							onClick={() => {
+								setPhoto({
+									...photo,
+									frontMatter: {
+										...photo.frontMatter,
+										geo: undefined,
+									},
+								})
+							}}
+						>
+							delete
+						</button>
+						<input
+							type="text"
+							class="form-control"
+							placeholder="e.g. '50.08980509521561,8.778178095817568'"
+							aria-label="Geo location"
+							aria-describedby="add-geolocation"
+							onInput={(e: { target: HTMLInputElement }) =>
+								setGeoInput(e.target.value)
+							}
+							value={geoInput}
+						/>
+
+						<button
+							class="btn btn-outline-secondary"
+							type="button"
+							id="add-geolocation"
+							onClick={() => {
+								const [lat, lng] = geoInput.split(',')
+								setGeo({
+									lat: parseFloat(lat),
+									lng: parseFloat(lng),
+								})
+							}}
+							disabled={(() => {
+								const [lat, lng] = geoInput.split(',').map(parseFloat)
+								return !(typeof lat === 'number' && typeof lng === 'number')
+							})()}
+						>
+							set location
+						</button>
+					</div>
 					<PhotoMap
 						geo={geo}
 						onGeo={(geo) => {

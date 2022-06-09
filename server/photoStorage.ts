@@ -16,8 +16,8 @@ type ParsedFiles = {
 	takenAt: Date
 }[]
 
-const photoData: ParsedFiles = []
-const albumData: ParsedFiles = []
+let photoData: ParsedFiles = []
+let albumData: ParsedFiles = []
 
 const loadFile =
 	(database: ParsedFiles, baseDir: string) => async (file: string) => {
@@ -96,8 +96,7 @@ export const data = async (photosDir: string): Promise<Gallery> => {
 			console.debug(chalk.gray('Deleting'), chalk.yellow(fileName))
 			await unlink(fileName)
 
-			const photo = photoData.find(({ name: n }) => name === n)
-			if (photo) delete photoData[photoData.indexOf(photo)]
+			photoData = photoData.filter(({ name: n }) => name !== n)
 		},
 	}
 }
