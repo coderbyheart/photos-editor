@@ -87,6 +87,16 @@ export const Photo = ({
 	const [newTag, setNewTag] = useState<string>('')
 	const [geoInput, setGeoInput] = useState<string>('')
 
+	const saveAndNext = () => {
+		if (photo === undefined) return
+		fetch(`http://localhost:3000/photo/${photoId}`, {
+			method: 'PUT',
+			body: JSON.stringify(photo.frontMatter),
+		}).then((res) => {
+			if (res.ok) route(`/photo/${next}`)
+		})
+	}
+
 	useEffect(() => {
 		fetch(`http://localhost:3000/photo/${photoId}`, { mode: 'cors' })
 			.then((res) => {
@@ -369,14 +379,7 @@ export const Photo = ({
 							<button
 								class="btn btn-outline-primary ms-2"
 								type="button"
-								onClick={() => {
-									fetch(`http://localhost:3000/photo/${photoId}`, {
-										method: 'PUT',
-										body: JSON.stringify(photo.frontMatter),
-									}).then((res) => {
-										if (res.ok) route(`/photo/${next}`)
-									})
-								}}
+								onClick={saveAndNext}
 							>
 								save + next
 							</button>
@@ -386,7 +389,7 @@ export const Photo = ({
 				<article>
 					<h2>{title}</h2>
 					{(tags?.length ?? []) > 0 && (
-						<p>{tags.map((t) => `#${t}`).join(' ')}</p>
+						<p>{tags?.map((t) => `#${t}`).join(' ')}</p>
 					)}
 					<div class="d-flex">
 						<div key={photoId}>
@@ -423,7 +426,7 @@ export const Photo = ({
 									})
 								}}
 							/>
-							<AlbumCart photoId={photoId} />
+							<AlbumCart photoId={photoId} onAdd={saveAndNext} />
 						</div>
 					</div>
 				</article>

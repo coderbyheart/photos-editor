@@ -1,5 +1,11 @@
 import { useState } from 'preact/hooks'
-export const AlbumCart = ({ photoId }: { photoId: string }) => {
+export const AlbumCart = ({
+	photoId,
+	onAdd,
+}: {
+	photoId: string
+	onAdd: () => void
+}) => {
 	const [entries, setEntries] = useState<string[]>(
 		JSON.parse(localStorage.getItem('cart') ?? '[]'),
 	)
@@ -43,11 +49,12 @@ export const AlbumCart = ({ photoId }: { photoId: string }) => {
 							setEntries((entries) => {
 								const newEntries = [...entries, photoId]
 								localStorage.setItem('cart', JSON.stringify(newEntries))
+								onAdd()
 								return newEntries
 							})
 						}}
 					>
-						add to stash
+						add to stash <small>saves, and next</small>
 					</button>
 				)}
 			</div>
