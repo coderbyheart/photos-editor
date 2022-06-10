@@ -61,6 +61,7 @@ export const AlbumCart = ({
 			<ul>
 				{entries
 					.sort((a, b) => a.localeCompare(b))
+					.map((e) => e.replace(/\.md$/, ''))
 					.map((e) => (
 						<li>{e}</li>
 					))}
