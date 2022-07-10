@@ -29,4 +29,7 @@ export default defineConfig({
 		outDir: './build',
 	},
 	envPrefix: 'PUBLIC_',
+	esbuild: {
+		logOverride: { 'this-is-undefined-in-esm': 'silent' },
+	},
 })
