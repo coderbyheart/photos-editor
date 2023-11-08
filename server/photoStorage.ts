@@ -9,12 +9,12 @@ export type Gallery = {
 	updatePhoto: (name: string, frontMatter: Record<string, any>) => Promise<void>
 	deletePhoto: (name: string) => Promise<void>
 }
-
-type ParsedFiles = {
+type ParsedFile = {
 	name: string
 	frontMatter: Record<string, any>
 	takenAt: Date
-}[]
+}
+type ParsedFiles = ParsedFile[]
 
 let photoData: ParsedFiles = []
 let albumData: ParsedFiles = []
