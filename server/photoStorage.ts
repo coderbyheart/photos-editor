@@ -97,6 +97,21 @@ export const data = async (photosDir: string): Promise<Gallery> => {
 			await unlink(fileName)
 
 			photoData = photoData.filter(({ name: n }) => name !== n)
+
+			const id = name.replace('.md', '')
+			for (const album of albumData) {
+				if (album.frontMatter.photos.includes(id)) {
+					album.frontMatter.photos = album.frontMatter.photos.filter(
+						(n: string) => n !== id,
+					)
+					const fileName = path.join(aDir, album.name)
+					console.debug(chalk.gray('Writing'), chalk.yellow(fileName))
+					const markdown = ['---', yaml.dump(album.frontMatter), '---'].join(
+						'\n',
+					)
+					await writeFile(fileName, markdown)
+				}
+			}
 		},
 	}
 }

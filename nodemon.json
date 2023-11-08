@@ -2,7 +2,7 @@
   "restartable": "rs",
   "ignore": ["./ui/", "./index.html"],
   "execMap": {
-    "ts": "node --loader tsx"
+    "ts": "node --import tsx"
   },
   "ext": "ts,js,json",
   "trace": true

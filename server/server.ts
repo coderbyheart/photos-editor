@@ -1,5 +1,4 @@
 import chalk from 'chalk'
-import { unlink } from 'fs/promises'
 import http, { IncomingMessage, ServerResponse } from 'http'
 import { URL } from 'url'
 import { photosByDate } from './photosByDate.js'
@@ -28,17 +27,8 @@ const requestListener =
 			}
 			for (const [header, value] of Object.entries(effectiveHeaders)) {
 				res.setHeader(header, value)
-				console.debug(
-					chalk.magenta('>'),
-					chalk.gray(header),
-					chalk.yellow(value),
-				)
 			}
 			res.writeHead(200)
-			console.debug(
-				chalk.magenta('>'),
-				chalk.yellow(JSON.stringify(data, null, 2)),
-			)
 			res.end(encodedJSON)
 		}
 
@@ -83,12 +73,12 @@ const requestListener =
 
 			return res.writeHead(202).end()
 		} else if (/^DELETE \/photo\/.+/.test(resource)) {
-				const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
-				if (photo === undefined) return send404()
-	
-				await gallery.deletePhoto(photo.name)
+			const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
+			if (photo === undefined) return send404()
 
-				return res.writeHead(202).end()
+			await gallery.deletePhoto(photo.name)
+
+			return res.writeHead(202).end()
 		} else if (/^GET \/photo\/.+/.test(resource)) {
 			const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
 			if (photo !== undefined) {
@@ -101,6 +91,24 @@ const requestListener =
 			}
 
 			return send404()
+		} else if (/^GET \/albums$/.test(resource)) {
+			return sendJSON(
+				gallery.albums
+					.sort(
+						(
+							{ frontMatter: { createdAt: c1 } },
+							{ frontMatter: { createdAt: c2 } },
+						) =>
+							(c2 instanceof Date ? c2.toISOString() : c2).localeCompare(
+								c1 instanceof Date ? c1.toISOString() : c1,
+							),
+					)
+					.map(({ name, frontMatter: { title, createdAt } }) => ({
+						name,
+						title,
+						createdAt,
+					})),
+			)
 		} else {
 			return send404()
 		}

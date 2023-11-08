@@ -6,4 +6,4 @@ export const photosByDate = async (
 	gallery.photos
 		.sort(({ takenAt: a }, { takenAt: b }) => b.getTime() - a.getTime())
 		.slice(0, 20)
-		.map(({ name: path }) => path)
+		.map(({ name, frontMatter: { url } }) => ({ name, url }))

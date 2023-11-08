@@ -31,6 +31,6 @@ export const searchPhotos = async (
 				return true
 			return false
 		})
-		.slice(0, 20)
-		.map(({ name: path }) => path)
+		.filter((_, i) => (albumSearch !== undefined ? true : i < 20))
+		.map(({ name, frontMatter: { url } }) => ({ name, url }))
 }

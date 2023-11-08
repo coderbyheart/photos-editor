@@ -1,5 +1,4 @@
 {
-  "include": ["**/*.ts"],
   "compilerOptions": {
     "target": "es2022",
     "lib": ["es2019"],
@@ -17,6 +16,12 @@
     "moduleResolution": "node",
     "module": "es2022",
     "allowSyntheticDefaultImports": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "paths": {
+      "react": ["./node_modules/preact/compat/"],
+      "react-dom": ["./node_modules/preact/compat/"]
+    }
   }
 }

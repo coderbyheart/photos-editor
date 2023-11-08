@@ -1,13 +1,14 @@
+import { route } from 'preact-router'
 import { Link } from 'preact-router/match'
 import { useEffect, useState } from 'preact/hooks'
 
 export const PhotoSearch = () => {
-	const [searchTerm, setSearchTerm] = useState('')
-	const [matches, setMatches] = useState<string[]>([])
+	const [searchTerm, setSearchTerm] = useState(
+		new URLSearchParams(document.location.search).get('q') ?? '',
+	)
+	const [matches, setMatches] = useState<{ name: string; url: string }[]>([])
 
 	useEffect(() => {
-		let isMounted = true
-
 		if (searchTerm.length < 3) return
 
 		const t = setTimeout(() => {
@@ -20,7 +21,6 @@ export const PhotoSearch = () => {
 		}, 250)
 
 		return () => {
-			isMounted = false
 			clearTimeout(t)
 		}
 	}, [searchTerm])
@@ -49,13 +49,17 @@ export const PhotoSearch = () => {
 				/>
 			</form>
 			{matches.length > 0 && (
-				<ul>
+				<div>
 					{matches.map((match) => (
-						<li>
-							<Link href={`/photo/${match}`}>{match}</Link>
-						</li>
+						<PhotoThumb
+							key={match.name}
+							photo={match}
+							onDeleted={() => {
+								setMatches((matches) => matches.filter((m) => m !== match))
+							}}
+						/>
 					))}
-				</ul>
+				</div>
 			)}
 			{matches.length === 0 && (
 				<p>
@@ -63,5 +67,56 @@ export const PhotoSearch = () => {
 				</p>
 			)}
 		</>
+	)
+}
+
+const PhotoThumb = ({
+	photo,
+	onDeleted,
+}: {
+	photo: { name: string; url: string }
+	onDeleted: () => void
+}) => {
+	const [checked, setChecked] = useState<boolean>(false)
+	return (
+		<div style={{ float: 'left', position: 'relative' }}>
+			<nav
+				style={{
+					position: 'absolute',
+					bottom: '1rem',
+					right: '1rem',
+				}}
+			>
+				{checked && (
+					<button
+						type="button"
+						class="btn btn-sm btn-danger me-2"
+						onClick={() => {
+							fetch(`http://localhost:3000/photo/${photo.name}`, {
+								method: 'DELETE',
+							}).then((res) => {
+								if (res.ok) onDeleted()
+							})
+						}}
+					>
+						Delete
+					</button>
+				)}
+				<input
+					type="checkbox"
+					checked={checked}
+					onInput={(e) => {
+						setChecked((e.target as HTMLInputElement).checked)
+					}}
+				/>
+			</nav>
+			<Link href={`/photo/${photo.name}`}>
+				<img
+					key={photo.url}
+					src={`${photo.url}?w=250&h=250&fm=webp&fit=thumb&q=50`}
+					style={{ width: '250px' }}
+				/>
+			</Link>
+		</div>
 	)
 }
