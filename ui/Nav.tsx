@@ -1,4 +1,7 @@
-import { Link } from 'preact-router/match'
+import { Link as RouterLink } from 'preact-router/match'
+
+type LinkProps = Parameters<typeof RouterLink>[0] & { href: string }
+const Link = RouterLink as (props: LinkProps) => ReturnType<typeof RouterLink>
 
 export const Nav = () => (
 	<header class="container d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">

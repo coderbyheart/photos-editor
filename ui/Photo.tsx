@@ -1,8 +1,8 @@
 import { route } from 'preact-router'
 import { useEffect, useState } from 'preact/hooks'
-import { AlbumCart } from './AlbumCart'
-import { DeleteButton } from './DeleteButton'
-import { PhotoMap } from './PhotoMap'
+import { AlbumCart } from './AlbumCart.tsx'
+import { DeleteButton } from './DeleteButton.tsx'
+import { PhotoMap } from './PhotoMap.tsx'
 
 type LoadedPhoto = {
 	name: string
@@ -76,7 +76,7 @@ const LastTagsButton = ({ onClick }: { onClick: (tags: string[]) => void }) => {
 const relRx = /rel="(?<rel>[^"]+)"/
 
 export const Photo = ({
-	matches: { photoId },
+	matches: { photoId } = { photoId: '' },
 }: {
 	path: string
 	matches?: { photoId: string }
@@ -99,22 +99,23 @@ export const Photo = ({
 
 	useEffect(() => {
 		fetch(`http://localhost:3000/photo/${photoId}`, { mode: 'cors' })
-			.then((res) => {
+			.then(async (res) => {
 				const links = res.headers
 					.get('link')
 					?.split(',')
 					.map((link) => {
 						const [url, relSpec] = link.split(';')
-						const rel = relRx.exec(relSpec)?.groups.rel
+						const rel = relRx.exec(relSpec)?.groups?.rel
 						const href = url.slice(1, -1)
+						if (rel === undefined) return {} as Record<string, string>
 						return { [rel]: href }
 					})
-					.reduce(
-						(links, link) => ({ ...links, ...link }),
-						{} as Record<string, string>,
+					.reduce<Record<string, string>>(
+						(acc, link) => ({ ...acc, ...link }),
+						{},
 					)
-				setNext(links.next)
-				setPrev(links.prev)
+				setNext(links?.['next'])
+				setPrev(links?.['prev'])
 				return res.json()
 			})
 			.then((photo) => {
@@ -162,7 +163,7 @@ export const Photo = ({
 			...photo,
 			frontMatter: {
 				...photo.frontMatter,
-				title: title,
+				title,
 			},
 		})
 	}
@@ -237,9 +238,10 @@ export const Photo = ({
 								id="title"
 								placeholder="Awesome Cat!"
 								value={title}
-								onInput={(e: { target: HTMLInputElement }) => {
-									localStorage.setItem('title', e.target.value)
-									setTitle(e.target.value)
+								onInput={(e) => {
+									const value = e.currentTarget.value
+									localStorage.setItem('title', value)
+									setTitle(value)
 								}}
 							/>
 							<LastTitleButton onClick={setTitle} />
@@ -250,9 +252,9 @@ export const Photo = ({
 							Tags
 							<LastTagsButton onClick={setTags} />
 						</label>
-						{(tags?.length ?? []) > 0 && (
+						{(tags?.length ?? 0) > 0 && (
 							<ul>
-								{tags.map((tag) => (
+								{(tags ?? []).map((tag) => (
 									<li>
 										{tag}
 										<button
@@ -264,7 +266,7 @@ export const Photo = ({
 													...photo,
 													frontMatter: {
 														...photo.frontMatter,
-														tags: photo.frontMatter.tags.filter(
+														tags: (photo.frontMatter.tags ?? []).filter(
 															(t) => t !== tag,
 														),
 													},
@@ -284,8 +286,8 @@ export const Photo = ({
 								placeholder="Some tag"
 								aria-label="Some tag"
 								aria-describedby="add-tag"
-								onInput={(e: { target: HTMLInputElement }) =>
-									setNewTag(e.target.value)
+								onInput={(e) =>
+									setNewTag(e.currentTarget.value)
 								}
 								value={newTag}
 								onKeyUp={(e: KeyboardEvent) => {
@@ -330,8 +332,8 @@ export const Photo = ({
 							placeholder="e.g. '50.08980509521561,8.778178095817568'"
 							aria-label="Geo location"
 							aria-describedby="add-geolocation"
-							onInput={(e: { target: HTMLInputElement }) =>
-								setGeoInput(e.target.value)
+							onInput={(e) =>
+								setGeoInput(e.currentTarget.value)
 							}
 							value={geoInput}
 						/>
@@ -388,7 +390,7 @@ export const Photo = ({
 				</form>
 				<article>
 					<h2>{title}</h2>
-					{(tags?.length ?? []) > 0 && (
+					{(tags?.length ?? 0) > 0 && (
 						<p>{tags?.map((t) => `#${t}`).join(' ')}</p>
 					)}
 					<div class="d-flex">
@@ -408,7 +410,7 @@ export const Photo = ({
 									title="YouTube video player"
 									frameborder="0"
 									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-									allowfullscreen
+									allowFullScreen={true}
 								></iframe>
 							)}
 							<dl class="mt-2">

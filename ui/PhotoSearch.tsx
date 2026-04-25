@@ -1,8 +1,10 @@
-import { route } from 'preact-router'
-import { Link } from 'preact-router/match'
+import { Link as RouterLink } from 'preact-router/match'
 import { useEffect, useState } from 'preact/hooks'
 
-export const PhotoSearch = () => {
+type LinkProps = Parameters<typeof RouterLink>[0] & { href: string }
+const Link = RouterLink as (props: LinkProps) => ReturnType<typeof RouterLink>
+
+export const PhotoSearch = (_: { path?: string }) => {
 	const [searchTerm, setSearchTerm] = useState(
 		new URLSearchParams(document.location.search).get('q') ?? '',
 	)
@@ -16,7 +18,7 @@ export const PhotoSearch = () => {
 			params.set('term', searchTerm.trim())
 
 			fetch(`http://localhost:3000/photos?${params.toString()}`)
-				.then((res) => res.json())
+				.then(async (res) => res.json())
 				.then((matches) => setMatches(matches))
 		}, 250)
 
@@ -30,7 +32,7 @@ export const PhotoSearch = () => {
 		if (searchTerm.length !== 0) return
 
 		fetch(`http://localhost:3000/photos/byDate`)
-			.then((res) => res.json())
+			.then(async (res) => res.json())
 			.then((matches) => setMatches(matches))
 	}, [searchTerm])
 
@@ -43,8 +45,8 @@ export const PhotoSearch = () => {
 					placeholder="Search"
 					aria-label="Search"
 					value={searchTerm}
-					onInput={(e: { target: HTMLInputElement }) =>
-						setSearchTerm(e.target.value)
+					onInput={(e) =>
+						setSearchTerm(e.currentTarget.value)
 					}
 				/>
 			</form>

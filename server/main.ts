@@ -1,7 +1,7 @@
-import { fromEnv } from '@nordicsemiconductor/from-env'
+import { fromEnv } from '@bifravst/from-env'
 import chalk from 'chalk'
-import { data } from './photoStorage.js'
-import { server } from './server.js'
+import { data } from './photoStorage.ts'
+import { server } from './server.ts'
 
 export {}
 

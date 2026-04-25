@@ -1,9 +1,10 @@
 import chalk from 'chalk'
-import http, { IncomingMessage, ServerResponse } from 'http'
+import type { IncomingMessage, ServerResponse } from 'http'
+import http from 'http'
 import { URL } from 'url'
-import { photosByDate } from './photosByDate.js'
-import { Gallery } from './photoStorage'
-import { searchPhotos } from './searchPhotos.js'
+import { photosByDate } from './photosByDate.ts'
+import type { Gallery } from './photoStorage.ts'
+import { searchPhotos } from './searchPhotos.ts'
 
 const requestListener =
 	(gallery: Gallery) => async (req: IncomingMessage, res: ServerResponse) => {
@@ -16,10 +17,7 @@ const requestListener =
 		res.setHeader('Access-Control-Expose-Headers', 'Link')
 		res.setHeader('Access-Control-Allow-Origin', '*')
 
-		const sendJSON = (
-			data: Record<string, any>,
-			headers?: Record<string, any>,
-		) => {
+		const sendJSON = (data: unknown, headers?: Record<string, string>) => {
 			const encodedJSON = JSON.stringify(data)
 			const effectiveHeaders = {
 				'Content-Type': 'application/json; charset=utf-8',
@@ -43,7 +41,7 @@ const requestListener =
 			res.setHeader('Access-Control-Allow-Headers', 'Link')
 			res.writeHead(200)
 			return res.end()
-		} else if (/^GET \/photos\?term=/.test(resource)) {
+		} else if (resource.startsWith('GET /photos?term=')) {
 			const term = new URLSearchParams(
 				new URL(`http://localhost${req.url}`).search,
 			).get('term')
@@ -59,7 +57,7 @@ const requestListener =
 			const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
 			if (photo === undefined) return send404()
 
-			const frontMatter = await new Promise<Record<string, any>>((resolve) => {
+			const frontMatter = await new Promise<Record<string, unknown>>((resolve) => {
 				let body = ''
 				req.on('data', (data: Buffer) => {
 					body = `${body}${data.toString()}`

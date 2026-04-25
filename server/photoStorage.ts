@@ -17,7 +17,7 @@ type ParsedFile = {
 type ParsedFiles = ParsedFile[]
 
 let photoData: ParsedFiles = []
-let albumData: ParsedFiles = []
+const albumData: ParsedFiles = []
 
 const loadFile =
 	(database: ParsedFiles, baseDir: string) => async (file: string) => {

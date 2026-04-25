@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'preact/hooks'
 
-export const Albums = () => {
+export const Albums = (_: { path?: string }) => {
 	const [albums, setAlbums] = useState<
 		{ name: string; title: string; createdAt: string }[]
 	>([])
 	useEffect(() => {
 		const t = setTimeout(() => {
 			fetch(`http://localhost:3000/albums`)
-				.then((res) => res.json())
+				.then(async (res) => res.json())
 				.then(setAlbums)
 		}, 250)
 

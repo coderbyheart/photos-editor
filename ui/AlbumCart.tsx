@@ -18,7 +18,7 @@ export const AlbumCart = ({
 					type="button"
 					onClick={() => {
 						setEntries(() => {
-							const newEntries = []
+							const newEntries: string[] = []
 							localStorage.setItem('cart', JSON.stringify(newEntries))
 							return newEntries
 						})

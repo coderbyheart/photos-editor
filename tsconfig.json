@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "lib": ["es2019"],
+    "target": "esnext",
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
@@ -13,9 +12,10 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
-    "moduleResolution": "node",
-    "module": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "jsxImportSource": "preact",

@@ -1,8 +1,8 @@
-import Router from 'preact-router'
-import { Nav } from './Nav'
-import { Photo } from './Photo'
-import { PhotoSearch } from './PhotoSearch'
-import { Albums } from './Albums'
+import {Router} from 'preact-router'
+import { Albums } from './Albums.tsx'
+import { Nav } from './Nav.tsx'
+import { Photo } from './Photo.tsx'
+import { PhotoSearch } from './PhotoSearch.tsx'
 
 export const App = () => (
 	<>
