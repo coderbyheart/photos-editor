@@ -8,7 +8,9 @@ export const PhotoSearch = (_: { path?: string }) => {
 	const [searchTerm, setSearchTerm] = useState(
 		new URLSearchParams(document.location.search).get('q') ?? '',
 	)
-	const [matches, setMatches] = useState<{ name: string; url: string }[]>([])
+	const [matches, setMatches] = useState<
+		{ name: string; url: string; video?: { youtube: string } }[]
+	>([])
 
 	useEffect(() => {
 		if (searchTerm.length < 3) return
@@ -74,7 +76,7 @@ const PhotoThumb = ({
 	photo,
 	onDeleted,
 }: {
-	photo: { name: string; url: string }
+	photo: { name: string; url: string; video?: { youtube: string } }
 	onDeleted: () => void
 }) => {
 	const [checked, setChecked] = useState<boolean>(false)
@@ -111,11 +113,18 @@ const PhotoThumb = ({
 				/>
 			</nav>
 			<Link href={`/photo/${photo.name}`}>
-				<img
-					key={photo.url}
-					src={`${photo.url}?w=250&h=250&fm=webp&fit=thumb&q=50`}
-					style={{ width: '250px' }}
-				/>
+				{photo.video !== undefined ? (
+					<img
+						src={`https://img.youtube.com/vi/${photo.video.youtube}/maxresdefault.jpg`}
+						style={{ width: '250px', height: '250px', objectFit: 'cover' }}
+					/>
+				) : (
+					<img
+						key={photo.url}
+						src={`${photo.url}?w=250&h=250&fm=webp&fit=thumb&q=50`}
+						style={{ width: '250px' }}
+					/>
+				)}
 			</Link>
 		</div>
 	)
