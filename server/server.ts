@@ -57,15 +57,17 @@ const requestListener =
 			const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
 			if (photo === undefined) return send404()
 
-			const frontMatter = await new Promise<Record<string, unknown>>((resolve) => {
-				let body = ''
-				req.on('data', (data: Buffer) => {
-					body = `${body}${data.toString()}`
-				})
-				req.on('end', () => {
-					resolve(JSON.parse(body))
-				})
-			})
+			const frontMatter = await new Promise<Record<string, unknown>>(
+				(resolve) => {
+					let body = ''
+					req.on('data', (data: Buffer) => {
+						body = `${body}${data.toString()}`
+					})
+					req.on('end', () => {
+						resolve(JSON.parse(body))
+					})
+				},
+			)
 
 			await gallery.updatePhoto(photo.name, frontMatter)
 

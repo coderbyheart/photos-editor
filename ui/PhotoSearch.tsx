@@ -45,9 +45,7 @@ export const PhotoSearch = (_: { path?: string }) => {
 					placeholder="Search"
 					aria-label="Search"
 					value={searchTerm}
-					onInput={(e) =>
-						setSearchTerm(e.currentTarget.value)
-					}
+					onInput={(e) => setSearchTerm(e.currentTarget.value)}
 				/>
 			</form>
 			{matches.length > 0 && (

@@ -1,4 +1,4 @@
-import {Router} from 'preact-router'
+import { Router } from 'preact-router'
 import { Albums } from './Albums.tsx'
 import { Nav } from './Nav.tsx'
 import { Photo } from './Photo.tsx'

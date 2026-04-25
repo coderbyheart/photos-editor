@@ -286,9 +286,7 @@ export const Photo = ({
 								placeholder="Some tag"
 								aria-label="Some tag"
 								aria-describedby="add-tag"
-								onInput={(e) =>
-									setNewTag(e.currentTarget.value)
-								}
+								onInput={(e) => setNewTag(e.currentTarget.value)}
 								value={newTag}
 								onKeyUp={(e: KeyboardEvent) => {
 									if (e.key === 'Enter') addTag()
@@ -332,9 +330,7 @@ export const Photo = ({
 							placeholder="e.g. '50.08980509521561,8.778178095817568'"
 							aria-label="Geo location"
 							aria-describedby="add-geolocation"
-							onInput={(e) =>
-								setGeoInput(e.currentTarget.value)
-							}
+							onInput={(e) => setGeoInput(e.currentTarget.value)}
 							value={geoInput}
 						/>
 

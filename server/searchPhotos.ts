@@ -3,7 +3,10 @@ import type { Gallery } from './photoStorage.tsx'
 const nameSearchTerm = /name:(?<name>[^ ]+)/
 const albumSearchTerm = /album:(?<album>[^ ]+)/
 
-export const searchPhotos = async (gallery: Gallery, term: string): Promise<{ name: string; url: string }[]> => {
+export const searchPhotos = async (
+	gallery: Gallery,
+	term: string,
+): Promise<{ name: string; url: string }[]> => {
 	const nameSearch = nameSearchTerm.exec(term)?.groups?.name
 	const albumSearch = albumSearchTerm.exec(term)?.groups?.album
 	let photosInAlbums: string[] = []
