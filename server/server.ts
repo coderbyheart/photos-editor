@@ -6,6 +6,19 @@ import { photosByDate } from './photosByDate.ts'
 import type { Gallery } from './photoStorage.ts'
 import { searchPhotos } from './searchPhotos.ts'
 
+const readJSONBody = async (
+	req: IncomingMessage,
+): Promise<Record<string, unknown>> =>
+	new Promise((resolve) => {
+		let body = ''
+		req.on('data', (data: Buffer) => {
+			body = `${body}${data.toString()}`
+		})
+		req.on('end', () => {
+			resolve(JSON.parse(body))
+		})
+	})
+
 const requestListener =
 	(gallery: Gallery) => async (req: IncomingMessage, res: ServerResponse) => {
 		const resource = `${req.method} ${req.url}`
@@ -57,17 +70,7 @@ const requestListener =
 			const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
 			if (photo === undefined) return send404()
 
-			const frontMatter = await new Promise<Record<string, unknown>>(
-				(resolve) => {
-					let body = ''
-					req.on('data', (data: Buffer) => {
-						body = `${body}${data.toString()}`
-					})
-					req.on('end', () => {
-						resolve(JSON.parse(body))
-					})
-				},
-			)
+			const frontMatter = await readJSONBody(req)
 
 			await gallery.updatePhoto(photo.name, frontMatter)
 
@@ -91,6 +94,23 @@ const requestListener =
 			}
 
 			return send404()
+		} else if (/^POST \/albums$/.test(resource)) {
+			const body = await readJSONBody(req)
+			const title = typeof body.title === 'string' ? body.title.trim() : ''
+			const photos = Array.isArray(body.photos)
+				? body.photos.filter((p): p is string => typeof p === 'string')
+				: []
+
+			if (title.length === 0) {
+				res.writeHead(400)
+				return res.end(`Missing album title!`)
+			}
+			if (photos.length === 0) {
+				res.writeHead(400)
+				return res.end(`Album has no photos!`)
+			}
+
+			return sendJSON(await gallery.createAlbum({ title, photos }))
 		} else if (/^GET \/albums$/.test(resource)) {
 			return sendJSON(
 				gallery.albums

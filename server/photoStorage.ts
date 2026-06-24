@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 import { readdir, readFile, unlink, writeFile } from 'fs/promises'
-import yaml from 'js-yaml'
+import * as yaml from 'js-yaml'
 import path from 'path'
 
 export type Gallery = {
@@ -8,6 +8,10 @@ export type Gallery = {
 	albums: ParsedFiles
 	updatePhoto: (name: string, frontMatter: Record<string, any>) => Promise<void>
 	deletePhoto: (name: string) => Promise<void>
+	createAlbum: (album: {
+		title: string
+		photos: string[]
+	}) => Promise<{ name: string; title: string; createdAt: string }>
 }
 type ParsedFile = {
 	name: string
@@ -18,6 +22,16 @@ type ParsedFiles = ParsedFile[]
 
 let photoData: ParsedFiles = []
 const albumData: ParsedFiles = []
+
+// Turns an album title into a file name slug, e.g. "10 Jahre Abi '99" -> "10-jahre-abi-99"
+const slugify = (title: string): string =>
+	title
+		.normalize('NFKD')
+		.replace(/[̀-ͯ]/g, '') // strip diacritics (Ä -> A)
+		.toLowerCase()
+		.replace(/['’]/g, '') // drop apostrophes (' and ’)
+		.replace(/[^a-z0-9]+/g, '-') // any other run of non-alphanumerics -> single hyphen
+		.replace(/^-+|-+$/g, '') // trim leading/trailing hyphens
 
 const loadFile =
 	(database: ParsedFiles, baseDir: string) => async (file: string) => {
@@ -89,6 +103,45 @@ export const data = async (photosDir: string): Promise<Gallery> => {
 			if (photo !== undefined) {
 				photo.frontMatter = frontMatter
 			}
+		},
+		createAlbum: async ({ title, photos }) => {
+			// Album photo lists reference photos by id (no `.md` extension), while the
+			// stash stores file names, so normalize before persisting.
+			const photoIds = photos.map((id) => id.replace(/\.md$/, ''))
+
+			// Derive a unique file name slug from the title.
+			const baseSlug = slugify(title)
+			let slug = baseSlug
+			for (
+				let i = 2;
+				albumData.some(({ name }) => name === `${slug}.md`);
+				i++
+			) {
+				slug = `${baseSlug}-${i}`
+			}
+			const name = `${slug}.md`
+
+			const createdAt = new Date().toISOString()
+			const frontMatter = {
+				title,
+				createdAt,
+				cover: photoIds[0],
+				photos: photoIds,
+			}
+
+			const fileName = path.join(aDir, name)
+			const markdown = ['---', yaml.dump(frontMatter), '---'].join('\n')
+			console.debug(chalk.gray('Writing'), chalk.yellow(fileName))
+			console.debug(chalk.white(markdown))
+			await writeFile(fileName, markdown)
+
+			albumData.push({
+				name,
+				frontMatter,
+				takenAt: new Date(createdAt),
+			})
+
+			return { name, title, createdAt }
 		},
 		deletePhoto: async (name) => {
 			const fileName = path.join(pDir, name)

@@ -1,3 +1,4 @@
+import { route } from 'preact-router'
 import { useState } from 'preact/hooks'
 export const AlbumCart = ({
 	photoId,
@@ -9,6 +10,23 @@ export const AlbumCart = ({
 	const [entries, setEntries] = useState<string[]>(
 		JSON.parse(localStorage.getItem('cart') ?? '[]'),
 	)
+	const [albumTitle, setAlbumTitle] = useState<string>('')
+
+	const createAlbum = () => {
+		const title = albumTitle.trim()
+		if (title.length === 0 || entries.length === 0) return
+		fetch(`http://localhost:3000/albums`, {
+			method: 'POST',
+			body: JSON.stringify({ title, photos: entries }),
+		}).then(async (res) => {
+			if (!res.ok) return
+			const album = (await res.json()) as { name: string }
+			localStorage.setItem('cart', JSON.stringify([]))
+			setEntries([])
+			setAlbumTitle('')
+			route(`/?${new URLSearchParams({ q: `album:${album.name}` })}`)
+		})
+	}
 
 	return (
 		<>
@@ -66,6 +84,29 @@ export const AlbumCart = ({
 						<li>{e}</li>
 					))}
 			</ul>
+			{entries.length > 0 && (
+				<div class="input-group mt-2">
+					<input
+						type="text"
+						class="form-control"
+						placeholder="New album title"
+						aria-label="New album title"
+						value={albumTitle}
+						onInput={(e) => setAlbumTitle(e.currentTarget.value)}
+						onKeyUp={(e: KeyboardEvent) => {
+							if (e.key === 'Enter') createAlbum()
+						}}
+					/>
+					<button
+						class="btn btn-outline-primary"
+						type="button"
+						onClick={createAlbum}
+						disabled={albumTitle.trim().length === 0}
+					>
+						create album from stash
+					</button>
+				</div>
+			)}
 		</>
 	)
 }
