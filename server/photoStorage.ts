@@ -121,7 +121,16 @@ export const data = async (photosDir: string): Promise<Gallery> => {
 			}
 			const name = `${slug}.md`
 
-			const createdAt = new Date().toISOString()
+			// Date the album by its most recent photo (falling back to now if none
+			// of the ids resolve to a photo with a valid takenAt).
+			const takenAts = photoIds
+				.map((id) => photoData.find(({ name: n }) => n === `${id}.md`)?.takenAt)
+				.filter((d): d is Date => d instanceof Date && !isNaN(d.getTime()))
+			const createdAt = (
+				takenAts.length > 0
+					? new Date(Math.max(...takenAts.map((d) => d.getTime())))
+					: new Date()
+			).toISOString()
 			const frontMatter = {
 				title,
 				createdAt,
