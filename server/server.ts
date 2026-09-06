@@ -3,8 +3,28 @@ import type { IncomingMessage, ServerResponse } from 'http'
 import http from 'http'
 import { URL } from 'url'
 import { photosByDate } from './photosByDate.ts'
-import type { Gallery } from './photoStorage.ts'
+import type { Gallery, PhotoFrontMatter } from './photoStorage.ts'
 import { searchPhotos } from './searchPhotos.ts'
+
+const defaultPageSize = 20
+const maxPageSize = 100
+
+const parsePageParam = (value: string | null, fallback: number): number => {
+	const parsed = value === null ? NaN : parseInt(value, 10)
+	if (!Number.isInteger(parsed) || parsed < 1) return fallback
+	return parsed
+}
+
+const pageParams = (url: string): { page: number; pageSize: number } => {
+	const params = new URL(`http://localhost${url}`).searchParams
+	return {
+		page: parsePageParam(params.get('page'), 1),
+		pageSize: Math.min(
+			maxPageSize,
+			Math.max(1, parsePageParam(params.get('pageSize'), defaultPageSize)),
+		),
+	}
+}
 
 const readJSONBody = async (
 	req: IncomingMessage,
@@ -54,7 +74,7 @@ const requestListener =
 			res.setHeader('Access-Control-Allow-Headers', 'Link')
 			res.writeHead(200)
 			return res.end()
-		} else if (resource.startsWith('GET /photos?term=')) {
+		} else if (resource.startsWith('GET /photos?')) {
 			const term = new URLSearchParams(
 				new URL(`http://localhost${req.url}`).search,
 			).get('term')
@@ -63,14 +83,23 @@ const requestListener =
 				res.end(`Missing term!`)
 				return
 			}
-			return sendJSON(await searchPhotos(gallery, term))
-		} else if (resource === 'GET /photos/byDate') {
-			return sendJSON(await photosByDate(gallery))
+			const { page, pageSize } = pageParams(req.url ?? '')
+			const { matches, total } = await searchPhotos(
+				gallery,
+				term,
+				page,
+				pageSize,
+			)
+			return sendJSON({ matches, total, page, pageSize })
+		} else if (resource.startsWith('GET /photos/byDate')) {
+			const { page, pageSize } = pageParams(req.url ?? '')
+			const { matches, total } = await photosByDate(gallery, page, pageSize)
+			return sendJSON({ matches, total, page, pageSize })
 		} else if (/^PUT \/photo\/.+/.test(resource)) {
 			const photo = gallery.photos.find(({ name }) => resource.endsWith(name))
 			if (photo === undefined) return send404()
 
-			const frontMatter = await readJSONBody(req)
+			const frontMatter: PhotoFrontMatter = await readJSONBody(req)
 
 			await gallery.updatePhoto(photo.name, frontMatter)
 

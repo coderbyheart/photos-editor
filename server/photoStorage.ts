@@ -3,10 +3,35 @@ import { readdir, readFile, unlink, writeFile } from 'fs/promises'
 import * as yaml from 'js-yaml'
 import path from 'path'
 
+export type PhotoListItem = {
+	name: string
+	url: string
+	video?: { youtube: string }
+}
+
+export type PhotoList = {
+	matches: PhotoListItem[]
+	total: number
+}
+
+export type PhotoFrontMatter = {
+	title?: string
+	description?: string
+	takenAt?: string
+	license?: string
+	geo?: { lat: number; lng: number }
+	tags?: string[]
+	url?: string
+	size?: number
+	image?: { width: number; height: number }
+	video?: { youtube: string }
+	[key: string]: unknown
+}
+
 export type Gallery = {
 	photos: ParsedFiles
 	albums: ParsedFiles
-	updatePhoto: (name: string, frontMatter: Record<string, any>) => Promise<void>
+	updatePhoto: (name: string, frontMatter: PhotoFrontMatter) => Promise<void>
 	deletePhoto: (name: string) => Promise<void>
 	createAlbum: (album: {
 		title: string

@@ -1,9 +1,14 @@
-import type { Gallery } from './photoStorage.tsx'
+import type { Gallery, PhotoList } from './photoStorage.ts'
 
 const nameSearchTerm = /name:(?<name>[^ ]+)/
 const albumSearchTerm = /album:(?<album>[^ ]+)/
 
-export const searchPhotos = async (gallery: Gallery, term: string): Promise => {
+export const searchPhotos = async (
+	gallery: Gallery,
+	term: string,
+	page = 1,
+	pageSize = 20,
+): Promise<PhotoList> => {
 	const nameSearch = nameSearchTerm.exec(term)?.groups?.name
 	const albumSearch = albumSearchTerm.exec(term)?.groups?.album
 	let photosInAlbums: string[] = []
@@ -17,17 +22,21 @@ export const searchPhotos = async (gallery: Gallery, term: string): Promise => {
 		)
 	}
 
-	return gallery.photos
-		.filter((photo) => {
-			if (nameSearch !== undefined && photo.name.includes(nameSearch))
-				return true
-			if (
-				albumSearch !== undefined &&
-				photosInAlbums.includes(photo.name.replace(/\.md$/, ''))
-			)
-				return true
-			return false
-		})
-		.filter((_, i) => (albumSearch !== undefined ? true : i < 20))
-		.map(({ name, frontMatter: { url, video } }) => ({ name, url, video }))
+	const filtered = gallery.photos.filter((photo) => {
+		if (nameSearch !== undefined && photo.name.includes(nameSearch))
+			return true
+		if (
+			albumSearch !== undefined &&
+			photosInAlbums.includes(photo.name.replace(/\.md$/, ''))
+		)
+			return true
+		return false
+	})
+	const start = (page - 1) * pageSize
+	return {
+		matches: filtered
+			.slice(start, start + pageSize)
+			.map(({ name, frontMatter: { url, video } }) => ({ name, url, video })),
+		total: filtered.length,
+	}
 }

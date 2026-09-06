@@ -8,6 +8,7 @@ type LoadedPhoto = {
 	name: string
 	frontMatter: {
 		title: string
+		description?: string
 		takenAt: string
 		license: string
 		geo?: { lat: number; lng: number }
@@ -128,7 +129,7 @@ export const Photo = ({
 
 	if (photo?.frontMatter === undefined) return null
 
-	const { takenAt, title, tags, geo } = photo.frontMatter
+	const { takenAt, title, description, tags, geo } = photo.frontMatter
 
 	const setTags = (tags: string[]) => {
 		setPhoto({
@@ -164,6 +165,16 @@ export const Photo = ({
 			frontMatter: {
 				...photo.frontMatter,
 				title,
+			},
+		})
+	}
+
+	const setDescription = (description: string) => {
+		setPhoto({
+			...photo,
+			frontMatter: {
+				...photo.frontMatter,
+				description,
 			},
 		})
 	}
@@ -246,6 +257,21 @@ export const Photo = ({
 							/>
 							<LastTitleButton onClick={setTitle} />
 						</div>
+					</fieldset>
+					<fieldset>
+						<label for="description" class="form-label">
+							Description
+						</label>
+						<textarea
+							class="form-control mb-3"
+							id="description"
+							placeholder="A short description of the photo"
+							rows={4}
+							value={description ?? ''}
+							onInput={(e) => {
+								setDescription(e.currentTarget.value)
+							}}
+						/>
 					</fieldset>
 					<fieldset class="mt-2">
 						<label for="tags" class="d-flex justify-content-between">
