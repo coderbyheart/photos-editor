@@ -23,31 +23,31 @@
     "ui": "vite"
   },
   "devDependencies": {
-    "@bifravst/eslint-config-typescript": "7.0.24",
-    "@bifravst/from-env": "3.0.2",
-    "@bifravst/prettier-config": "1.1.17",
-    "@preact/preset-vite": "2.10.5",
-    "@swc/core": "1.15.43",
+    "@bifravst/eslint-config-typescript": "8.0.3",
+    "@bifravst/from-env": "4.0.0",
+    "@bifravst/prettier-config": "2.0.0",
+    "@preact/preset-vite": "2.10.6",
+    "@swc/core": "1.16.2",
     "@types/js-yaml": "4.0.9",
-    "@types/leaflet": "1.9.21",
-    "@types/node": "26.0.0",
-    "@typescript/native-preview": "7.0.0-dev.20260624.1",
+    "@types/leaflet": "1.9.22",
+    "@types/node": "26.4.1",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "bootstrap": "5.3.8",
-    "chalk": "5.6.2",
-    "eslint": "10.5.0",
+    "chalk": "6.0.0",
+    "eslint": "10.10.0",
     "husky": "9.1.7",
-    "js-yaml": "5.1.0",
+    "js-yaml": "5.4.1",
     "leaflet": "1.9.4",
-    "lint-staged": "17.0.8",
+    "lint-staged": "17.5.0",
     "nodemon": "3.1.14",
-    "preact": "10.29.2",
+    "preact": "10.29.8",
     "preact-router": "4.1.2",
-    "prettier": "3.8.4",
-    "typescript": "6.0.3"
+    "prettier": "3.9.6",
+    "typescript": "7.0.2"
   },
   "engines": {
-    "node": ">=24 <25",
-    "npm": ">=11.7.0 <12"
+    "node": ">=24.20.0 <25",
+    "npm": ">=12.0.2 <13"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
