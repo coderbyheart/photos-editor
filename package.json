@@ -23,24 +23,23 @@
     "ui": "vite"
   },
   "devDependencies": {
-    "@bifravst/from-env": "4.0.0",
+    "@bifravst/from-env": "4.0.1",
     "@coderbyheart/oxlint-config": "1.0.1",
     "@preact/preset-vite": "2.10.6",
-    "@swc/core": "1.16.2",
+    "@swc/core": "1.16.22",
     "@types/js-yaml": "4.0.9",
     "@types/leaflet": "1.9.22",
-    "@types/node": "26.4.1",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
-    "bootstrap": "5.3.8",
-    "chalk": "6.0.0",
+    "@types/node": "26.6.6",
+    "bootstrap": "5.3.9",
+    "chalk": "6.0.1",
     "husky": "9.1.7",
-    "js-yaml": "5.4.1",
+    "js-yaml": "5.5.0",
     "leaflet": "1.9.4",
-    "lint-staged": "17.5.0",
+    "lint-staged": "17.6.2",
     "nodemon": "3.1.14",
-    "oxfmt": "0.78.0",
-    "oxlint": "1.93.0",
-    "preact": "10.29.8",
+    "oxfmt": "0.79.0",
+    "oxlint": "1.94.0",
+    "preact": "11.2.0",
     "preact-router": "4.1.2",
     "typescript": "7.0.2"
   },
@@ -54,7 +53,7 @@
     ]
   },
   "engines": {
-    "node": ">=24.20.0 <25",
-    "npm": ">=12.0.2 <13"
+    "node": ">=26.13.1 <25",
+    "npm": ">=12.2.3 <13"
   }
 }
